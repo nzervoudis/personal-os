@@ -106,20 +106,25 @@ At the end of a working session, you run `/assimilate` - a command that tells Cl
 
 ## The philosophy
 
-**This is a starting point, not a finished product.** The starter prompt gives you a working system on day one. What makes it yours is what happens after.
+**This is a starting point, not a finished product.** I don't mean "I'm still working on this" (though I am). I mean YOU need to be the one to evolve it for your own use.
 
-Every convention in my vault came from something going wrong. The rule "never overwrite the daily note" came from Claude overwriting it. The rule "don't do mental arithmetic with dates" came from a near-miss. The rule "execute, don't plan" came from Claude preparing to-do lists when I just wanted the task done. None of it was designed upfront - it was earned through use.
+The starter prompt gives you a working system on day one. What makes it yours is what happens after.
+
+I could've turned this into a more rigid template/product/whatever, but that would've defeated the point of all this. The aim is to build a personal OS that thinks the way you do, and that works in a way that works for you.
+
+Every convention in my vault came from something going wrong, or from me realising that a different way would be better (and then testing it out). The rule "never overwrite the daily note" came from Claude overwriting it. The rule "don't do mental arithmetic with dates" came from a near-miss. The rule "execute, don't plan" came from Claude preparing to-do lists when I just wanted the task done. None of it was designed upfront - it was earned through use.
 
 The feedback loop is the point. When Claude gets something wrong, you correct it. When you run `/assimilate`, Claude writes that correction into the `CLAUDE.md` files that govern its own behaviour. Next session, it doesn't make that mistake again. You're not just using Claude - you're using Claude to train a better Claude, one that knows your specific conventions, your folder structure, your tone preferences, your context.
 
-A few principles that emerged from building this:
+This starter prompt will help you skip some of the early lessons I learned, but it won't absolve you from the need (and joy!) of experimentation.
+
+Some guiding principles I suggest you keep in mind:
 
 - **Function over form.** Resist the urge to design the perfect system before you start. Use it for a week, then fix what's broken.
 - **Correct, don't work around.** When something feels off, say so. The system should adapt to you, not the other way around.
 - **The files are dumb; the AI is smart.** Markdown files have no opinions. The intelligence lives in how Claude reads and writes them. If Claude's behaviour isn't right, the fix is in `CLAUDE.md` - not in adding more structure to your notes.
-- **Your daily note is sacred.** It's your raw input. Everything else is Claude's output. Keep those two things separate and the whole system stays clean.
 
-The full story of how this was built - including the verbatim quotes, the false starts, and the design principles that emerged - is in the [origin story](origin-story.md).
+For a closer look into how this was built - including verbatim quotes (sanitised), false starts, and the design principles that emerged - check out [origin story](origin-story.md).
 
 ---
 
