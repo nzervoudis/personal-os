@@ -40,13 +40,17 @@ Separation of concerns: one document for the AI to write to, one for you to writ
 
 When you run `/process-autopilot`, Claude reads your daily note and does everything it can:
 
+- **Reads the entire note first** and builds a manifest of every actionable item before touching anything - no more dropping items at the bottom of long notes
+- Sorts by priority: things you said "do this" come first, then time-sensitive items, then everything else
 - Extracts action items and creates task notes (each task is its own file with metadata - status, priority, due date, related people)
 - Creates or updates CRM records for anyone you mention
-- Flags follow-ups
 - Drafts emails, research briefs, or other lightweight outputs immediately
+- **Verifies** after processing that every item got a disposition (done, deferred with reason, or not applicable) - no silent drops
 - Updates the daily brief with everything that changed
 
 You can walk away while this runs. Any questions Claude has go into the daily brief for you to answer later - it doesn't pause and wait for you in the terminal.
+
+There's also a **no-double-defer rule**: if you explicitly asked Claude to implement something and it deferred it, it can't defer it again next time. It either executes it or escalates with a real explanation of what's blocking it.
 
 ### The CRM that maintains itself
 
@@ -148,6 +152,11 @@ For a closer look into how this was built - including verbatim quotes (sanitised
 ---
 
 ## Changelog
+
+### v0.5
+- **Extraction manifest**: Processing now reads the entire daily note first and builds a numbered manifest of every actionable item before touching anything. Items are sorted by priority (explicit "do this" requests first), processed in that order, then verified against the original note. No more silent drops at the bottom of long notes.
+- **No double-defer rule**: Items the user explicitly asked to be implemented cannot be deferred more than once. On the second encounter, they either get executed or escalated with a real explanation of what's blocking them.
+- **Multi-day catch-up**: If processing hasn't run for more than a day, it now picks up all unprocessed daily notes in chronological order - not just today's.
 
 ### v0.4
 - **Journal commentary**: after processing journal entries, Claude now generates commentary notes in `2_for-review/`. Each note includes observations, patterns from comparing your current thinking against the archive, and analysis to help you think the topic through further. Related entries are grouped into one holistic commentary; clearly different topics (e.g. business strategy vs personal life) get separate notes.

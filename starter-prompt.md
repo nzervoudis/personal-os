@@ -1,4 +1,4 @@
-## Personal OS Starter Prompt v0.4
+## Personal OS Starter Prompt v0.5
 
 You are setting up a Personal OS in an empty Obsidian vault. This is a markdown-based personal operating system - not a software project. It covers both work and personal life. All content is plain markdown interconnected via Obsidian's wiki-style links [[filename]].
 
@@ -107,7 +107,7 @@ Note: the CLI prints a loader line to stderr - ignore it.
 
 ## Commands
 
-**`/process-autopilot`** - Hands-free processing. Reads daily notes, extracts tasks, updates the daily brief, and flags anything needing your input. Questions go to the daily brief, not the terminal. Use when stepping away from the screen.
+**`/process-autopilot`** - Hands-free processing. Reads daily notes, extracts a full manifest of every actionable item before processing, executes what it can, and flags the rest in the daily brief. Questions go to the brief, not the terminal. Use when stepping away from the screen.
 
 The workflow is defined in `system/process-workflow.md`. Rules and format conventions are in `system/processing-rules.md`.
 
@@ -196,6 +196,10 @@ During daily note processing:
 - Tasks needing user input: create a task note, add to "Questions for user" in the daily brief
 - Ambiguous or deep-research tasks: create a task note, flag it
 
+## No Double-Defer Rule
+
+An item the user explicitly asked to be implemented or executed cannot be deferred more than once. If it was deferred in a previous run and appears again, execute it this time. If it genuinely cannot be done, escalate with a clear explanation of what's blocking it - not just "deferred".
+
 ## Daily Note Rules
 
 - Never delete or overwrite user content in daily notes
@@ -252,15 +256,54 @@ Check the real current date using `date` in the terminal. Do not rely on session
 2. Check `tasks/` for items due today
 3. Check for stale waiting tasks (status: waiting, no log update in 7+ days)
 
-### Step 3: Process daily note
+### Step 3: Process daily notes
 
 Read `system/processing-rules.md` for extraction rules.
 
-For any new content in the daily note (not previously processed):
-1. Triage each item (execute immediately, or create task, or flag for user input)
-2. Extract action items into task notes in `tasks/`
-3. Extract follow-ups, decisions, and other relevant items
-4. If the journal module is enabled: route any reflective content to the relevant evergreen notes in `journal/`, then generate journal commentary (see journal rules in CLAUDE.md)
+**Multi-day processing**: If the last run was more than 1 day ago, process ALL unprocessed daily notes in chronological order - not just today's. Check for any notes in `1_inbox/` dated since the last brief date.
+
+#### Step 3a: Extract manifest (BEFORE any processing)
+
+For each daily note to be processed:
+
+1. **Read the entire note first.** Do not start processing after reading the first section.
+2. **Extract every actionable item** into a numbered manifest. An "item" is anything that requires action: a task, a piece of feedback, a draft request, a CRM update, a file move, a question answer, a "done"/"sent" confirmation, a request to investigate or implement something.
+3. **Categorise each item**: task, feedback, content-request, CRM-update, file-operation, question-answer, implementation-request.
+4. **Sort by priority**: items the user explicitly said "implement"/"execute"/"do this" come first. Then time-sensitive items. Then everything else. Do NOT process in note order - process in priority order.
+5. **Check the deferred list** in the current daily brief changelog. If any item in the manifest matches something previously deferred, flag it - these get priority (see "No double-defer rule" below).
+
+#### Step 3b: Process items from manifest
+
+For each item in the manifest:
+
+1. **Triage**:
+   - Lightweight, no clarification needed: execute immediately (draft it, write it, do it)
+   - Needs user input: create task, add to "Questions for user" in the brief
+   - Deep research or ambiguous scope: create task, flag it
+
+2. **Extract** in chunks:
+   - Action items: task notes in `tasks/`
+   - People mentioned: create/update CRM notes (if CRM module enabled)
+   - Follow-ups needed: task notes
+   - Decisions made: update relevant project/system files
+   - If the journal module is enabled: route reflective content to evergreen notes in `journal/`, then generate journal commentary (see journal rules in CLAUDE.md)
+
+#### Step 3c: Verify manifest (AFTER all processing)
+
+After processing all items from the manifest:
+
+1. **Re-read the daily note.**
+2. **Compare against the manifest.** Every item must have a disposition: done, deferred (with reason), or not applicable (with reason).
+3. **Flag any gaps** in the daily brief changelog. If an item was missed, either action it now or add it to "Questions for user" with an explanation.
+4. If context limits are approaching and items remain unprocessed, list them explicitly in the changelog as "Not yet processed (context limit) - carry forward" rather than silently dropping them.
+
+#### No double-defer rule
+
+An item that the user explicitly asked to be implemented, executed, or planned **cannot be deferred more than once**. If it was deferred in a previous run and appears again (either because the user re-raised it or because it's still on the deferred list):
+
+- **Execute it in this run**, even if it means spending significant time on it.
+- If it genuinely cannot be done (e.g. requires permissions, external dependency, or would take the entire session), escalate it to "Questions for user" with a clear explanation of what's blocking it - not just "deferred".
+- Never silently carry forward a deferred item with the same "deferred" status. Each carry-forward must either change status (to blocked/escalated) or get done.
 
 ### Step 4: Update daily brief
 
