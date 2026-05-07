@@ -153,6 +153,15 @@ For a closer look into how this was built - including verbatim quotes (sanitised
 
 ## Changelog
 
+### v0.6
+- **Conversational onboarding**: the setup interview now asks one question at a time, captures info volunteered out of order, and gently pushes back on incomplete answers. A temporary scratchpad (`temp-onboarding.md`) lets the interview survive interruption and gets cleaned up at the end.
+- **More personalisation up front**: new interview questions for spelling locale, date format, voice-vs-typing input style, day boundary (default midnight, configurable for night-owls), for-review staleness threshold, scheduled autopilot preference, and weekly review day. Most have sensible defaults so users can answer in one word.
+- **Daily brief layout fix**: the brief now opens with Top Priorities first (no preamble), and the changelog moves to its own file at `0_daily-brief/changelog.md`. The brief itself just has a one-line pointer to the changelog. Keeps "what to do next" front and centre while preserving the full audit trail.
+- **Spot repetition, offer to standardise**: when Claude notices the same kind of work being done a third time, it now surfaces the pattern and asks whether to make it a template, script, or slash command. Stops the same friction recurring forever.
+- **Backlink, don't relocate**: when creating a project hub, link to existing notes from where they already live - never move them out of `journal/`, `2_for-review/`, `tasks/`, etc. just to gather them under a project.
+- **Question audit at brief flip**: before carrying forward "Questions for user" entries to a new day, scan the previous day's daily notes for direct answers. Stale questions that the user has already addressed accumulate fast and erode trust in the brief.
+- **Schedule capture (no auto-install)**: if the user wants `/process-autopilot` to run on a daily schedule, the preference gets captured during onboarding and the user gets a hand-off command for their OS (launchd / cron / Task Scheduler). Auto-installation is deliberately out of scope - too many edge cases (permissions, sleep behaviour, login state).
+
 ### v0.5
 - **Extraction manifest**: Processing now reads the entire daily note first and builds a numbered manifest of every actionable item before touching anything. Items are sorted by priority (explicit "do this" requests first), processed in that order, then verified against the original note. No more silent drops at the bottom of long notes.
 - **No double-defer rule**: Items the user explicitly asked to be implemented cannot be deferred more than once. On the second encounter, they either get executed or escalated with a real explanation of what's blocking them.
