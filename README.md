@@ -4,7 +4,8 @@ A system for running your work and personal life from a single set of plain text
 
 Built with Obsidian + Claude Code. Shared because it might work for you too.
 
-If you want to see it in action, check out this [50' webinar](https://youtu.be/2i_MR16ZoCM) I did recently.
+If you want to see it in action, check out this [50' webinar](https://youtu.be/2i_MR16ZoCM) I did recently:
+<iframe width="1800" height="839" src="https://www.youtube.com/embed/2i_MR16ZoCM" title="Building A Personal OS That Thinks the Way I Do (Claude Code x Obsidian)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ---
 
