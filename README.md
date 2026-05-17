@@ -4,6 +4,8 @@ A system for running your work and personal life from a single set of plain text
 
 Built with Obsidian + Claude Code. Shared because it might work for you too.
 
+If you want to see it in action, check out this [50' webinar]((https://youtu.be/2i_MR16ZoCM) I did recently.
+
 ---
 
 ## The problem it solves
