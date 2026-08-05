@@ -138,6 +138,11 @@ For a closer look into how this was built - including verbatim quotes (sanitised
 
 ## Getting started
 
+### Choose your path
+
+- **Starting from a new or otherwise empty Obsidian vault?** Use [Starter Prompt v0.7](starter-prompt.md).
+- **Already using an earlier Personal OS or your own markdown-based system?** Use [Upgrade Prompt v0.7](upgrade-prompt.md). It audits first and creates an interactive HTML report before changing any operating files.
+
 ### Prerequisites
 
 1. **Obsidian** - download at https://obsidian.md (free)
@@ -153,9 +158,28 @@ For a closer look into how this was built - including verbatim quotes (sanitised
 
 **Note:** The prompt is written for Claude Code. It may need minor adjustments for other tools (Codex, etc.).
 
+### How to use the upgrade prompt
+
+1. Open your existing Personal OS folder in Claude Code
+2. Copy the full contents of `upgrade-prompt.md`
+3. Paste it into Claude Code and let it create the HTML audit report
+4. Review each proposal as Accept, Revise or Reject, then paste the exported feedback back into the same conversation
+
+The audit phase does not rewrite your operating manual, workflows, hooks or user-authored content. Accepted internal changes are implemented only after you return your decisions; external and destructive actions still require separate approval.
+
 ---
 
 ## Changelog
+
+### v0.7
+- **Two coordinated entry points**: `starter-prompt.md` sets up a clean vault; `upgrade-prompt.md` audits an existing system without overwriting it. Both now use the same release number.
+- **Decision-complete, not exhaustive**: outputs retain the evidence, provenance, uncertainty, exceptions and next actions needed to act or verify safely, then remove repetition that does not change the outcome.
+- **Clear instruction architecture**: the root manual owns invariants and routing, project files contain only local differences, focused leaves own reusable workflows and acceptance criteria, and commands remain deliberate user interfaces rather than duplicate rulebooks.
+- **System-surface discipline**: before adding a prompt, command, hook or template, the system checks for an existing authoritative home, a distinct trigger, a verifiable outcome and a maintenance owner.
+- **Audit-first upgrades**: the upgrader maps the real system, gathers evidence from corrections and outputs, and produces a self-contained HTML report with Accept, Revise and Reject controls. No migration happens until the user returns their decisions.
+- **Evidence-first hooks**: guardrails are proposed only for evidenced, reliably detectable failures, with explicit scope, false-positive risk, tests, observe-only rollout and rollback.
+- **Optional localhost dashboards**: onboarding can add a private local UI for priorities/to-dos, CRM, finances or health/habits, using canonical data, shared navigation, minimal persistence, loopback-only serving, health checks and supervised startup patterns.
+- **Stronger safety defaults**: protected raw records, verified names, evidence-based task completion, external-write approvals, secrets handling, interactive/unattended modes, approval queues and operating-manual history are included in the core.
 
 ### v0.6
 - **Conversational onboarding**: the setup interview now asks one question at a time, captures info volunteered out of order, and gently pushes back on incomplete answers. A temporary scratchpad (`temp-onboarding.md`) lets the interview survive interruption and gets cleaned up at the end.

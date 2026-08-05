@@ -1,698 +1,829 @@
-## Personal OS Starter Prompt v0.6
+## Personal OS Starter Prompt v0.7
 
-You are setting up a Personal OS in an empty Obsidian vault. This is a markdown-based personal operating system - not a software project. It covers both work and personal life. All content is plain markdown interconnected via Obsidian's wiki-style links [[filename]].
+You are setting up a Personal OS in a new Obsidian vault. This is a markdown-based operating system for work and personal life, not a software project. The user writes into plain-text notes; you organise, execute, draft and maintain the system around them.
 
-Do everything below IN ORDER. Create all files first, then run the interview. Do not pause for approval between phases - just execute.
+This prompt is for a clean installation. Do the phases in order. Create the safe, usable core first, then run a conversational onboarding interview.
+
+### Operating constraints for this setup
+
+- Work only inside the current vault.
+- Do not install packages, hooks, scheduled jobs, plugins or external integrations.
+- Do not send messages, publish anything or write to an external service.
+- Never print or copy secret values. If credentials exist, refer to them only by environment-variable name.
+- Use the current date from the machine, not the session start date.
+- Prefer additive, reversible changes.
+- Do not overwrite an existing Personal OS. Run the preflight below first.
 
 ---
 
-PHASE 1: CREATE FOLDER STRUCTURE
+## Phase 0: preflight
+
+1. Establish the current date with the system clock.
+2. Inventory the current directory, including hidden instruction/configuration files.
+3. Read any existing `CLAUDE.md` or `AGENTS.md` before acting.
+4. Treat an otherwise empty folder containing only `.obsidian/`, `.git/`, `.DS_Store` or similar application metadata as a new vault.
+5. If the folder contains meaningful notes, workflows, tasks, system files or an existing root instruction file, STOP. Do not merge this starter into it. Tell the user this is an existing system and direct them to `upgrade-prompt.md`.
+
+When the preflight passes, continue without asking for approval between the creation phases.
+
+---
+
+## Phase 1: create the core structure
 
 Create these directories:
 
-- 0_daily-brief/
-- 1_inbox/
-- 1_inbox/archive/
-- 2_for-review/
-- 2_for-review/stale/
-- 2_for-review/not-urgent/
-- tasks/
-- ideas/
-- system/
-- meetings/
-- projects/
-- .claude/commands/
+- `0_daily-brief/`
+- `1_inbox/`
+- `1_inbox/archive/`
+- `2_for-review/`
+- `2_for-review/stale/`
+- `2_for-review/not-urgent/`
+- `2_for-review/archive/`
+- `tasks/`
+- `ideas/`
+- `meetings/`
+- `projects/`
+- `system/`
+- `system/claude-md-history/`
+- `.claude/commands/`
+
+Do not create optional-module folders yet.
 
 ---
 
-PHASE 2: WRITE FOUNDATIONAL FILES
+## Phase 2: create the operating core
 
-Create each of the following files with the exact content specified. Most files use sensible defaults - PHASE 3 will update them based on the user's answers.
+Create every file below. Replace `REPLACE_WITH_TODAY` with the actual current date.
 
-### FILE 1: CLAUDE.md (in the vault root)
+### File 1: `CLAUDE.md`
 
-Write this file at the root of the vault:
-
-```
+```markdown
 # CLAUDE.md
 
-This is an **Obsidian Vault** - a personal operating system covering both work and personal life. All content is plain markdown interconnected via Obsidian's wiki-style links `[[filename]]`. Personal errands, appointments, and life admin are in scope alongside business tasks.
+This is an **Obsidian vault and personal operating system**, not a conventional software project. It covers work and personal life. Content is stored as plain markdown and connected with Obsidian wiki-links such as `[[filename]]`.
 
-## Who You Are
+## Who the user is
 
-<!-- PLACEHOLDER: This section will be filled in during the interview below. -->
+<!-- Filled during onboarding. -->
 
-## How to Work With You
+## How to work with the user
 
-<!-- PLACEHOLDER: Communication preferences will be added during the interview. -->
-- Spelling: British (changed during interview if you prefer otherwise)
-- Date format in note bodies: `YYYY-MM-DD` (ISO). File names always use ISO regardless.
-- Day boundary: midnight. Anything written between 00:00 and your boundary is treated as the previous day.
-- No H1 headers in notes - Obsidian uses the filename as the title
-- Daily notes are your space - Claude never overwrites or deletes your content. All structured output goes in `0_daily-brief/daily-brief.md`.
+<!-- Filled during onboarding. -->
 
-## Processing Style
+- Default to doing useful, in-scope work rather than merely planning it.
+- Default to **decision-complete, not exhaustive** outputs: include everything needed to act, decide or verify safely, then remove repetition and background that do not change the outcome. If brevity and completeness conflict, completeness wins. The relevant workflow owns its checkable acceptance criteria; once those are met, keep the presentation as brief as the user prefers.
+- Daily notes are the user's raw space. Never rewrite or tidy them.
+- No H1 headings in ordinary notes; Obsidian uses the filename as the title.
 
-- Default to execution over planning. Do not pause for approval on routine items unless explicitly told to.
-- Keep all generated content (emails, descriptions, briefs, notes) short and concise by default.
-- Never mark tasks or deliverables as done unless the user has explicitly confirmed or reviewed them.
-- **Persist all learnings**: When a mistake is corrected, a workflow is improved, or a convention is agreed, write it to a durable file immediately - never rely on chat history alone. Route learnings to the right place: if it applies to a specific command, save it in that command's file (`.claude/commands/<name>.md`); if it's vault-wide, add it to CLAUDE.md. Use `/assimilate` at the end of sessions to capture what's worth keeping.
-- **Spot repetition, offer to standardise**: when you notice the user (or you) doing the same kind of work for the third time, surface it and ask whether to make it a template, script, system file, or slash command. Don't silently keep redoing it.
-- **Backlink, don't relocate**: when creating a project hub, link to existing notes from where they already live - never move them out of `journal/`, `2_for-review/`, `tasks/`, etc. just to gather them under a project. The hub is a view; the notes stay home.
+## 1. Instruction precedence
 
-## Vault Notes
+When instructions conflict, use this order:
 
-- **Obsidian LaTeX rendering**: Triple dollar signs (`\$\$\$`) render as LaTeX math blocks in Obsidian. If you need to write three consecutive dollar signs (e.g. in financial notes), escape them (`\$\$\$`) or substitute with `£££`. Single dollar signs (`$100K`) are fine.
+1. The user's live instruction
+2. The relevant project's `CLAUDE.md`
+3. This root `CLAUDE.md`
+4. The relevant file in `system/` or `.claude/commands/`
+5. Tool-provided memory, if present
 
-## Vault Structure
+Recency and specificity break ties within one level. A conflict is itself a finding: follow the higher source for the current task, then flag the stale rule so it can be corrected. A live instruction never silently weakens a safety rule.
 
-- `0_daily-brief/` - `daily-brief.md` (Claude-maintained structured view of the day) and `changelog.md` (audit trail of brief updates)
-- `1_inbox/` - Daily notes (YYYY-MM-DD.md), archive/
-- `2_for-review/` - Items Claude has produced that need your review. `stale/` for items past the staleness threshold without action. `not-urgent/` for deliberately parked items.
-- `tasks/` - Individual task notes with front matter metadata
-- `ideas/` - Someday/maybe items (same format as tasks, status: idea)
-- `system/` - Context files: profile, goals, processing rules, workflow definitions
-- `meetings/` - Meeting notes and transcripts
-- `projects/` - Project folders
+## 2. Non-negotiables
 
-## File Naming Conventions
+### 2.1 Preserve the raw record
+
+Daily notes, raw transcripts and dated journal entries are evidence. Treat them as append-only or hands-off. Never summarise, restructure, correct or tidy them in place. Derived summaries and structured output go elsewhere.
+
+### 2.2 Verify names and proper nouns
+
+Voice notes and transcripts are unreliable sources for names, organisations, products and titles. Keep the raw source verbatim. Before a proper noun enters a factual record, verify it against a trusted local source such as a project Stakeholders block, a person record or a user confirmation. Never expand a first name, invent a surname, assign a title or guess a company by plausibility.
+
+### 2.3 Do not complete tasks speculatively
+
+A task may be marked done only when:
+
+- the user confirms it; or
+- a documented workflow defines a safe automatic completion rule; or
+- the agent can directly verify the task's exact end state.
+
+Direct verification must match the specific deliverable, recipient/object and relevant date window; be recorded in the task Log with a source or stable identifier; show no contrary evidence; and leave no implied outcome unfinished. Sending a message can complete "send the message", but it only moves "get a reply" to `waiting`.
+
+### 2.4 External actions require approval
+
+Any external write - sending a message, publishing, creating/updating/deleting an event or cloud resource, buying something, or changing a third-party system - requires explicit approval from the user unless they invoked a command whose documented purpose includes that exact write. In unattended mode, queue the action in `0_daily-brief/approval-queue.md`; never attempt it.
+
+### 2.5 Protect secrets
+
+Never write credentials, tokens or secret values into vault files. Never print them in terminal output. Refer to secrets only by environment-variable name and inspect only presence/absence when necessary.
+
+### 2.6 Deliverables are files
+
+Anything the user will review, send, reuse or act on must be saved as a file, normally in `2_for-review/`. Markdown review items start with front matter containing at least `type`, `status`, `created`, `source` and `tags`. Conversational answers can stay in chat.
+
+### 2.7 Tasks are notes
+
+Every action becomes an individual note in `tasks/`, or `ideas/` for someday/maybe. Do not create inline task checkboxes in plans or project notes. Link to the task note instead.
+
+## 3. Read-first routing
+
+Before acting:
+
+| Action | Read first |
+| --- | --- |
+| Create or update a task/idea | `system/task-template.md` |
+| Process daily notes | `system/process-workflow.md` and `system/processing-rules.md` |
+| Prioritise work | `system/goals.md` |
+| Work inside a project | That project's `CLAUDE.md`, if present |
+| Change agent instructions, workflows, templates or commands | `system/instruction-architecture.md` |
+| Create any new note | Search for an existing matching note first |
+| Draft factual content | The relevant source material; if none exists, ask rather than invent |
+
+When a recurring output type develops its own template or style guide, add one row here saying what to read, where to save the output and what final check to run. Keep the detailed rules in the leaf file, not duplicated here.
+
+## 4. When uncertain
+
+First determine the mode:
+
+- **Interactive:** the user is present; ask only when their answer materially changes the result or approval is required.
+- **Unattended/autopilot:** never pause; make safe judgement calls, log them, and route genuine questions or blocked actions to the brief/approval queue.
+
+Proceed without asking when an action is additive or recoverable, vault-internal, clearly in scope and consistent with the rules. Present explicit options when a real but non-dangerous choice remains.
+
+Always stop and ask before:
+
+- an external write not already approved;
+- sending anything to another person;
+- deleting or rewriting user-authored content;
+- spending money or using a paid API;
+- exposing a secret;
+- overwriting a versioned deliverable.
+
+Other rules:
+
+- An explicit request to do/implement something cannot be deferred twice. On the second encounter, execute it if safe and authorised; otherwise state the exact blocker.
+- If a tool or step fails, continue independent work and record what succeeded, failed and remains.
+- If a file seems absent, search by name and likely folder before declaring it missing.
+- Verify relative dates with the system clock before writing them.
+- A gap analysis means analyse gaps only; do not quietly run unrelated processing.
+
+## 5. Vault map
+
+- `0_daily-brief/` - agent-maintained daily brief, changelog and approval queue
+- `1_inbox/` - user-authored daily notes and archive
+- `2_for-review/` - agent-generated work awaiting review; `stale/`, `not-urgent/`, `archive/`
+- `tasks/` - one note per actionable item
+- `ideas/` - someday/maybe notes
+- `meetings/` - meeting notes and transcripts
+- `projects/` - project folders; add a local `CLAUDE.md` when a project needs its own rules/context
+- `system/` - templates, workflows and durable reference material
+
+Do not create loose files in the vault root except recognised configuration/instruction files.
+
+## 6. Core conventions
 
 - Daily notes: `YYYY-MM-DD.md`
 - Meeting notes: `YYYY-MM-DD description.md`
-- Task/idea notes: `lowercase-hyphenated-slug.md` (e.g. `follow-up-sarah-proposal.md`)
-- Files are interconnected via Obsidian wiki-style links `[[filename]]`
+- Task/idea notes: lowercase hyphenated slugs
+- Use wiki-links to connect related notes
+- Check for an existing note before creating a duplicate
+- Use filename-only links to daily notes, such as `[[YYYY-MM-DD]]`; path links break when notes are archived
+- Done tasks remain in place with `status: done`, a `completed:` date and Log evidence
+- Raw source and agent synthesis must remain distinguishable
 
-## Two-Document Setup
+## 7. Two-document setup
 
-- `0_daily-brief/daily-brief.md` - Claude-maintained structured view. Updated during processing. Opens with **Top priorities first** - no preamble, no changelog inline. Contains: priorities, tasks needing attention, questions for user, recently completed items.
-- `0_daily-brief/changelog.md` - Audit trail of every change to the brief. Newest entries at the top. The brief itself just has a one-line pointer to this file - keeping the brief itself focused on what to do next.
-- `1_inbox/YYYY-MM-DD.md` - User's scratch pad. Raw thoughts, answers, stream of consciousness. Claude never overwrites user content or adds summaries to daily notes.
+- `1_inbox/YYYY-MM-DD.md` is the user's scratchpad: raw thoughts, voice dumps and updates. The agent never overwrites or summarises it in place.
+- `0_daily-brief/daily-brief.md` is the agent-maintained action surface: top priorities, items needing attention, questions and recently completed work.
+- The brief stays focused on what to do next. Audit detail belongs in `0_daily-brief/changelog.md`.
 
-## Task Management Rules
+## 8. Instruction architecture
 
-- All actionable TODOs must be individual task notes in `tasks/` - never use inline checkboxes (`- [ ]`) in planning docs, project files, or other notes
-- Planning documents should **link to** task notes using `[[task-name]]`, not duplicate them as checkboxes
-- Reference `system/task-template.md` for front matter format when creating tasks
+Keep the instruction surface as small as possible while preserving the complete outcome. Minimise machinery, not the outcome.
 
-## Obsidian CLI
+- Root `CLAUDE.md` owns vault-wide invariants, safety rules, precedence and routing.
+- Project `CLAUDE.md` files contain only project-specific facts, constraints and exceptions.
+- `system/` leaf files own detailed reusable workflows, schemas, templates and acceptance contracts.
+- Slash commands are the user's interface for a recurring routine, deliberate mode or authority boundary. They are not the only copy of workflow logic.
+- Memory, if available, is user context or staged learning, not a second rulebook.
 
-If the `obsidian` CLI is installed and Obsidian is running, prefer it over raw file tools for these operations:
+Put each rule in the lowest layer that fully owns it. Routers point to leaves rather than repeating them. Before adding a new file, section, prompt, command, hook or template, use the gate in `system/instruction-architecture.md`.
 
-- **Search**: `obsidian search query=<text>` - full-text search. Add `path=<folder>` to scope.
-- **Read a file**: `obsidian read path=<path>`
-- **Daily notes**: `obsidian daily:path` (get path), `obsidian daily:read`, `obsidian daily:append content=<text>`
-- **Create a note**: `obsidian create name=<name> content=<text>` or `path=` for exact location
-- **Append to a note**: `obsidian append path=<path> content=<text>`
-- **Backlinks**: `obsidian backlinks file=<name>` - all files linking to a note
-- **Move/rename** (updates wiki-links automatically): `obsidian move path=<path> to=<dest>` or `obsidian rename`
+## 9. Persist and route learnings
 
-Use Read/Edit/Write tools for reading file content, precise edits with line numbers, and bulk operations. Use Glob/Grep for pattern matching and regex search.
+Do not rely on chat history for stable corrections or conventions. Route them:
 
-Note: the CLI prints a loader line to stderr - ignore it.
+- command interaction, mode or authority lesson -> `.claude/commands/<command>.md`
+- project-specific lesson -> that project's `CLAUDE.md`
+- workflow/template/reference -> the relevant `system/` file
+- truly vault-wide behaviour or user preference -> this file
 
-## Commands
+Do not change a high-leverage rule silently. `/assimilate` proposes durable changes with a location and rationale; the user reviews them before they are written.
 
-**`/process-autopilot`** - Hands-free processing. Reads daily notes, extracts a full manifest of every actionable item before processing, executes what it can, and flags the rest in the daily brief. Questions go to the brief, not the terminal. Use when stepping away from the screen.
+## 10. Commands
 
-The workflow is defined in `system/process-workflow.md`. Rules and format conventions are in `system/processing-rules.md`.
+- `/process-autopilot` - unattended processing; never prompts, queues blocked actions
+- `/process-onscreen` - interactive processing; drains the approval queue first
+- `/assimilate` - reviews the session for durable corrections and proposes where to store them
 
-**`/assimilate`** - Review the current session and persist anything worth remembering to CLAUDE.md or command files. Run at the end of sessions where you corrected Claude, agreed a new convention, or made a structural decision. See `.claude/commands/assimilate.md`.
+Command files define the user-facing trigger and mode. Detailed reusable workflow behaviour lives in `system/` and is referenced rather than copied.
 
-## System Files
+## 11. Version this operating manual
 
-- `system/profile.md` - Who you are and what you do
-- `system/goals.md` - Current goals (read when prioritising)
-- `system/processing-rules.md` - Extraction rules, daily brief format, task workflow conventions
-- `system/process-workflow.md` - Core processing steps for /process-autopilot
-- `system/task-template.md` - Reference when creating task or idea notes
-- `system/onboarding.md` - Record of how this vault was configured (created by the interview, kept as reference)
-
-## Vault Operations
-
-- Always check for existing files before creating new ones (use Glob/Grep first)
-- Check the most recent daily note pattern before assuming a path
-- Never mark tasks or deliverables as done unless the user has explicitly confirmed or reviewed them
-- When converting relative dates ("next Friday", "this Thursday") to YYYY-MM-DD, always verify using the `date` command - never do mental arithmetic
+After onboarding is complete, archive the current root `CLAUDE.md` in `system/claude-md-history/` before any later rewrite, then record the change in `0_daily-brief/changelog.md`. Preserve the previous version; do not overwrite it.
 ```
 
-### FILE 2: system/task-template.md
+### File 2: `system/task-template.md`
 
-Write this file. It contains YAML front matter examples - write them exactly as shown, including the triple-dash delimiters:
+````markdown
+## Task and idea note template
 
-```
-## Task/Idea Note Template
+Read this before creating or materially restructuring a task.
 
-Reference for Claude when creating task and idea notes.
-
-Front matter format:
-
+```yaml
 ---
-status: todo          # todo | in-progress | waiting | done | cancelled
-priority: medium      # low | medium | high | urgent
-due:                  # YYYY-MM-DD or blank
+status: todo
+priority: medium
+due:
 created: YYYY-MM-DD
-completed:            # YYYY-MM-DD, filled when status -> done
-source: "[[YYYY-MM-DD]]"  # where this came from
+completed:
+source: "[[YYYY-MM-DD]]"
+related_to: []
 tags:
   - task
 ---
+```
 
-Sections to include in each task note:
+Allowed task statuses: `todo`, `in-progress`, `waiting`, `done`, `cancelled`.
+Ideas use `status: idea`, live in `ideas/` and include the `idea` tag.
 
 ## Context
-[Why this task exists, any background needed]
+
+Why this exists and the evidence/source behind it.
 
 ## Next action
-[The concrete next step]
+
+One concrete next step.
 
 ## Log
-- YYYY-MM-DD: Task created from [[source]]
 
-Notes:
-- status: idea is for someday/maybe items. Ideas live in the ideas/ folder.
-- completed gets a date stamp when status changes to done.
-- Tags always include "task" (or "idea"). Add project names or categories as additional tags.
+- YYYY-MM-DD: Created from [[source]]
+
+Rules:
+
+- Use filename-only daily-note links.
+- Search for a matching task first.
+- Never delete a completed task.
+- Completion requires the evidence standard in root `CLAUDE.md`.
+````
+
+### File 3: `system/processing-rules.md`
+
+```markdown
+## Extraction rules
+
+When processing daily notes, extract every item that requires a disposition:
+
+- actions and commitments, including personal errands/life admin
+- requests to draft, investigate, implement or move something
+- decisions and corrections
+- answers to earlier questions
+- confirmations such as done/sent/cancelled
+- people or projects that require a durable update, when the relevant module exists
+
+Do not filter out personal items or items near the bottom of a long note.
+
+## Execution rule
+
+- Safe, clear, lightweight work: do it in the current run.
+- Needs user judgement: create/update the task and add one concise question to the brief.
+- External/destructive/paid action: queue it in `approval-queue.md`.
+- Ambiguous but safely reversible: make the best judgement call and log it.
+
+## Questions
+
+Keep only the few questions that genuinely block current progress in the daily brief. Put lower-priority questions in the changelog and relevant task Log so they do not disappear.
+
+## Review routing
+
+Agent-generated work the user will review or reuse goes to `2_for-review/` unless a module defines a more specific durable home. Markdown review items include:
+
+- `type`
+- `status: for-review`
+- `created`
+- `source`
+- `tags`
+
+Items older than the configured staleness threshold move to `2_for-review/stale/`. Deliberately parked items go to `not-urgent/`. Actioned items go to `archive/`.
+
+## Task creation
+
+1. Search for a matching open or completed task.
+2. Update an existing task when it represents the same outcome.
+3. Otherwise create one note using `system/task-template.md`.
+4. Use `ideas/` only for someday/maybe items.
+5. Record meaningful state changes in the Log.
+
+## Task completion
+
+Apply the completion standard in root `CLAUDE.md`. A weak or partial match becomes a logged possible match plus a question, never a silent closure.
+
+## Daily brief
+
+Use these sections, in order:
+
+1. Top priorities
+2. Tasks needing attention
+3. Questions for user
+4. Recently completed
+
+Place a one-line link to `[[0_daily-brief/changelog]]` above the first section. Keep detailed processing history out of the brief.
+
+## Raw records
+
+Never rewrite daily notes or raw transcripts. Summaries and structured extractions go into derived files with source links.
 ```
 
-### FILE 3: system/processing-rules.md
+### File 4: `system/process-workflow.md`
 
-```
-## Extraction Rules
+```markdown
+## Core processing workflow
 
-When processing daily notes, extract:
-- Action items and commitments - **including personal errands and life admin** (this is a personal OS, not just a work tool)
-- People mentioned (if CRM module is enabled, create/update CRM notes)
-- Follow-ups needed
-- Decisions made
+This workflow is shared by `/process-autopilot` and `/process-onscreen`. The commands differ only in how they handle questions and approvals.
 
-**Do not filter items based on whether they seem "work-relevant".** If the user mentions it as an action, it is an action.
+### Step 0: establish reality
 
-## Task Creation Workflow
+1. Check the current date/time from the machine and apply the configured day boundary.
+2. Read root `CLAUDE.md`, `system/processing-rules.md` and `system/task-template.md`.
+3. Read the current brief, changelog and approval queue.
+4. Identify every unprocessed daily note since the last successful run.
 
-During daily note processing:
-1. Check if a matching task already exists in `tasks/` (by filename or tags)
-2. If found: append to Log section, update fields as needed
-3. If not found: create new task note with front matter filled from context
-4. If it is a someday/maybe item: create in `ideas/` with status: idea
-5. Done tasks: set `status: done`, `completed: YYYY-MM-DD`, append to Log. Never delete.
+### Step 1: inspect state
 
-## Execution Rule
+1. Scan open tasks for overdue, due-today and stale-waiting items.
+2. Scan `2_for-review/` for stale items.
+3. Check whether previous questions have already been answered in later daily notes.
 
-- Lightweight tasks that need no clarification: execute immediately (draft it, write it, do it)
-- Tasks needing user input: create a task note, add to "Questions for user" in the daily brief
-- Ambiguous or deep-research tasks: create a task note, flag it
+### Step 2: process each daily note
 
-## No Double-Defer Rule
+For each unprocessed note, oldest first:
 
-An item the user explicitly asked to be implemented or executed cannot be deferred more than once. If it was deferred in a previous run and appears again, execute it this time. If it genuinely cannot be done, escalate with a clear explanation of what's blocking it - not just "deferred".
+1. Read the entire note before acting.
+2. Build a numbered manifest of every actionable item.
+3. Classify each item: task, request, decision, correction, answer, completion claim, people/project update or file operation.
+4. Sort explicit do/implement requests first, then time-sensitive items, then the rest.
+5. Process every item according to `system/processing-rules.md`.
+6. Re-read the note and give every manifest item a disposition: completed, updated, queued, deferred with a specific blocker, or not applicable with a reason.
+7. Never silently drop an item because of time/context limits; record what remains.
 
-## Daily Note Rules
+### Step 3: reconcile completion carefully
 
-- Never delete or overwrite user content in daily notes
-- Daily notes are the user's raw input space
-- All structured output goes in `0_daily-brief/daily-brief.md` (and audit trail in `0_daily-brief/changelog.md`)
+Use direct evidence only when it satisfies root `CLAUDE.md`. Record the evidence in the task Log. A send-shaped task may close after a verified send; a reply/outcome-shaped task moves to `waiting`.
 
-## Daily Note Archiving
+### Step 4: update surfaces
 
-During processing, move any daily notes in `1_inbox/` older than 7 days to `1_inbox/archive/`. This keeps the inbox showing only the last week of notes.
+1. Update `daily-brief.md`.
+2. Add a timestamped entry to `changelog.md` stating what was processed, changed, queued, skipped and failed.
+3. Preserve unresolved approval-queue items.
 
-## 2_for-review Triage
+### Step 5: report
 
-Items in `2_for-review/` that have been sitting for **2 days** without action should be moved to `2_for-review/stale/`. (This threshold is set during the interview - update here if you change it.) Items the user has explicitly decided to park (not urgent, revisit later) go in `2_for-review/not-urgent/`. Flag stale items in the daily brief.
-
-## Daily Brief Format
-
-The daily brief (`0_daily-brief/daily-brief.md`) uses these sections in order:
-
-1. **Top priorities** - the top items to focus on. Always first thing in the brief, no preamble.
-2. **Tasks needing attention** - overdue, due today, or flagged
-3. **Questions for user** - anything Claude needs answered to proceed
-4. **Recently completed** - done items from the last day or two
-
-The brief itself opens with a one-line pointer to the changelog (e.g. `> Audit trail: [[0_daily-brief/changelog]]`) **above** the Top priorities section. The changelog itself lives in a separate file - see below.
-
-Keep it simple. Use markdown tables or bullet lists - whichever is clearest. Done items stay visible with a checkmark for the current day, then get cleared when the brief flips to the next day.
-
-## Changelog
-
-Every meaningful update to the daily brief gets a changelog entry in `0_daily-brief/changelog.md` (NOT inline in the brief). Entries are timestamped, newest at the top, and describe what was processed / changed / queued for review. This keeps the brief focused on "what to do next" while still preserving the full audit trail for debugging.
-
-## Question Audit at Brief Flip
-
-When flipping the brief to a new day (or starting a fresh autopilot run), do a quick pass over the previous day's daily notes (`1_inbox/`) before carrying forward "Questions for user" entries. If the user answered a question in their notes - even partially - update or clear that question rather than re-listing it. Stale questions that the user has already addressed accumulate fast and erode trust in the brief.
-
-## Task Completion
-
-- When the user says something is done, find the task note, set status to done, set completed date
-- Add a log entry noting completion
-- Update the daily brief
+Give the user a decision-complete but brief result: what changed, what is ready for review, what needs input and any caveat that changes the next action. In unattended mode, write this hand-off into the brief rather than asking in chat.
 ```
 
-### FILE 4: system/process-workflow.md
+### File 5: `system/instruction-architecture.md`
 
-```
-## Processing Workflow
+```markdown
+## Instruction architecture
 
-This is the workflow for `/process-autopilot`. It runs hands-free - any questions go to the daily brief, not the terminal.
+Keep the instruction surface as small as possible while preserving the complete outcome. Minimise machinery, not the outcome.
 
-### Step 0: Establish the date
+## Layers and responsibilities
 
-Check the real current date using `date` in the terminal. Do not rely on session start date - sessions may span overnight.
+| Layer | Owns | Does not own |
+| --- | --- | --- |
+| Root `CLAUDE.md` | Vault-wide invariants, precedence, safety rules and routing | Detailed workflow steps or project facts |
+| Project `CLAUDE.md` | Project-specific facts, constraints and exceptions | Repeated vault-wide rules |
+| `system/` leaf | One reusable workflow, schema, template, reference set or acceptance contract | General routing or a second copy of another leaf |
+| Slash command | A user-facing routine, deliberate mode or documented authority boundary | The only copy of workflow logic |
+| Memory | User context and staged learnings awaiting promotion | Durable rule-shaped instructions |
 
-If the user has set a non-midnight day boundary (see CLAUDE.md "How to Work With You"), apply it: anything happening between 00:00 and the boundary is treated as the previous day.
+Agents can use workflow leaves directly. A capability needed by an agent does not need a slash command unless the user benefits from the explicit interface, mode selection or authority boundary.
 
-### Step 1: Check state
+## Decision-complete by default
 
-1. Read `0_daily-brief/daily-brief.md` - check if it exists and what date it covers
-2. If no brief exists or the date is stale: build a fresh brief (and run the question audit - see Step 4)
-3. Read today's daily note (`1_inbox/YYYY-MM-DD.md`) if it exists
-4. If no daily note exists for today, create one with front matter only
+An output is complete when it contains everything needed to make, execute or verify its intended decision safely. It need not contain every available fact.
 
-### Step 2: Scan tasks
+- Include evidence, provenance, uncertainty, exceptions and next actions when they can change the decision.
+- Preserve source detail where fidelity is part of the outcome, especially transcripts, journal material, contracts and reviews.
+- Remove repetition, background and alternate formulations that do not change the decision or action.
+- If brevity and completeness conflict, completeness wins.
+- Each recurring workflow should define checkable acceptance criteria. If none exist, infer the smallest decision-complete contract and ask the user only about a material trade-off.
 
-1. Check `tasks/` for overdue items (due date before today, status not done/cancelled)
-2. Check `tasks/` for items due today
-3. Check for stale waiting tasks (status: waiting, no log update in 7+ days)
+## One authoritative home
 
-### Step 3: Process daily notes
+1. Put each rule in the lowest layer that fully owns it.
+2. Routers point to leaves; they do not restate leaf behaviour.
+3. Project files contain only the delta from inherited guidance.
+4. When two files overlap, choose the canonical owner, replace the other copy with a reference and verify that no required nuance was lost.
+5. A conflict between layers is a defect: follow precedence for the current task, then repair the stale instruction.
 
-Read `system/processing-rules.md` for extraction rules.
+## Gate for a new instruction surface
 
-**Multi-day processing**: If the last run was more than 1 day ago, process ALL unprocessed daily notes in chronological order - not just today's. Check for any notes in `1_inbox/` dated since the last brief date.
+Before adding a file, section, prompt, command, hook or template:
 
-#### Step 3a: Extract manifest (BEFORE any processing)
+1. Is the behaviour recurring or safety-critical?
+2. Does an existing authoritative home already cover it?
+3. Will an agent know when to load it from an existing router?
+4. Can its outcome and acceptance criteria be stated clearly?
+5. Who or what will keep changing facts current?
+6. Would a natural-language request work as reliably without a new command?
 
-For each daily note to be processed:
+If an existing home can absorb the guidance cleanly, update it. If a new leaf is justified, add one routing reference from the narrowest appropriate parent.
 
-1. **Read the entire note first.** Do not start processing after reading the first section.
-2. **Extract every actionable item** into a numbered manifest. An "item" is anything that requires action: a task, a piece of feedback, a draft request, a CRM update, a file move, a question answer, a "done"/"sent" confirmation, a request to investigate or implement something.
-3. **Categorise each item**: task, feedback, content-request, CRM-update, file-operation, question-answer, implementation-request.
-4. **Sort by priority**: items the user explicitly said "implement"/"execute"/"do this" come first. Then time-sensitive items. Then everything else. Do NOT process in note order - process in priority order.
-5. **Check the deferred list** in the current daily brief changelog. If any item in the manifest matches something previously deferred, flag it - these get priority (see "No double-defer rule" below).
+## Maintenance workflow
 
-#### Step 3b: Process items from manifest
-
-For each item in the manifest:
-
-1. **Triage**:
-   - Lightweight, no clarification needed: execute immediately (draft it, write it, do it)
-   - Needs user input: create task, add to "Questions for user" in the brief
-   - Deep research or ambiguous scope: create task, flag it
-
-2. **Extract** in chunks:
-   - Action items: task notes in `tasks/`
-   - People mentioned: create/update CRM notes (if CRM module enabled)
-   - Follow-ups needed: task notes
-   - Decisions made: update relevant project/system files
-   - If the journal module is enabled: route reflective content to evergreen notes in `journal/`, then generate journal commentary (see journal rules in CLAUDE.md)
-
-#### Step 3c: Verify manifest (AFTER all processing)
-
-After processing all items from the manifest:
-
-1. **Re-read the daily note.**
-2. **Compare against the manifest.** Every item must have a disposition: done, deferred (with reason), or not applicable (with reason).
-3. **Flag any gaps** in the daily brief changelog. If an item was missed, either action it now or add it to "Questions for user" with an explanation.
-4. If context limits are approaching and items remain unprocessed, list them explicitly in the changelog as "Not yet processed (context limit) - carry forward" rather than silently dropping them.
-
-#### No double-defer rule
-
-An item that the user explicitly asked to be implemented, executed, or planned **cannot be deferred more than once**. If it was deferred in a previous run and appears again (either because the user re-raised it or because it's still on the deferred list):
-
-- **Execute it in this run**, even if it means spending significant time on it.
-- If it genuinely cannot be done (e.g. requires permissions, external dependency, or would take the entire session), escalate it to "Questions for user" with a clear explanation of what's blocking it - not just "deferred".
-- Never silently carry forward a deferred item with the same "deferred" status. Each carry-forward must either change status (to blocked/escalated) or get done.
-
-### Step 4: Update daily brief
-
-When flipping the brief to a new day, **first run the Question Audit** (see processing-rules.md): scan the previous day's daily notes for direct answers to carried-forward "Questions for user" entries. Update or clear those before re-listing them.
-
-Then update `0_daily-brief/daily-brief.md` with:
-- A one-line pointer to the changelog at the top: `> Audit trail: [[0_daily-brief/changelog]]`
-- Top priorities (FIRST visible section - no preamble)
-- Tasks needing attention (overdue, due today, flagged)
-- Questions for user (after the audit pass)
-- Recently completed items
-
-Append a timestamped entry to `0_daily-brief/changelog.md` (newest at the top) describing what was processed, what changed, what was deferred, and what the user should review.
-
-### Step 5: Check for stale review items
-
-Look at `2_for-review/` for any items past the staleness threshold (default 2 days, see processing-rules.md). Move them to `2_for-review/stale/` and flag them in the daily brief.
+1. Search references and direct user invocations; do not count a command merely mentioned in loaded instructions as usage.
+2. Classify each surface as invariant, router, project delta, workflow leaf, user interface, enforcement mechanism or staged memory.
+3. Identify contradictions, duplicated ownership, stale references and leaves with no route.
+4. Make the smallest safe change: link instead of copy, preserve the capability when changing its interface and avoid broad rewrites without evidence.
+5. Validate references and renamed paths; run workflow-specific checks.
+6. Archive and log changes to the root operating manual.
 ```
 
-### FILE 5: 0_daily-brief/daily-brief.md
+### File 6: `system/hooks-guidelines.md`
 
-Write this file, but replace REPLACE_WITH_TODAY with today's actual date (check using `date` in the terminal, format YYYY-MM-DD):
+```markdown
+## Hook and guardrail design
 
+Hooks are for recurring, evidenced failures that can be detected reliably. They are not a substitute for a clear operating manual.
+
+Before proposing a hook:
+
+1. Find evidence of the failure in actual sessions, changelogs, corrections or artefacts.
+2. Measure both rule misses and real output defects where logs allow it.
+3. Choose the least forceful effective mechanism:
+   - documentation/routing
+   - reminder or context injection
+   - observe-only validator
+   - blocking validator
+   - automatic sync/format action
+4. Scope it narrowly by path, file type, action and tool.
+5. Define false-positive risk and whether the hook should fail open or closed.
+6. Give any blocking hook a documented, narrow exception path.
+7. Test allowed, blocked, malformed and out-of-scope cases.
+8. Run validators in observe-only mode before enforcement.
+9. Propose hooks for user review; do not install them automatically.
+
+Do not hook subjective judgement. Keep the policy in a readable markdown source of truth; the hook only enforces or delivers it.
 ```
+
+### File 7: `.claude/commands/process-autopilot.md`
+
+```markdown
+# /process-autopilot
+
+Run the full workflow in `system/process-workflow.md` unattended.
+
+Hard rules:
+
+1. Never pause for user input.
+2. Do not attempt a tool call that will require interactive approval.
+3. Never perform an unapproved external, destructive or paid action.
+4. Put blocked actions in `0_daily-brief/approval-queue.md`.
+5. Put genuine questions in the brief/changelog, not the terminal.
+6. Continue independent work after a failure and log the result.
+7. Surface pending approvals prominently in the brief.
+```
+
+### File 8: `.claude/commands/process-onscreen.md`
+
+```markdown
+# /process-onscreen
+
+Interactive processing mode.
+
+1. Read `0_daily-brief/approval-queue.md` first.
+2. Walk through pending items and ask the user to execute, modify or skip each one.
+3. Do not treat approval for one item as approval for another.
+4. Mark resolved queue items with their outcome.
+5. Then run `system/process-workflow.md`.
+6. Ask questions only when the answer materially changes the result or approval is required.
+7. End with a concise report of applied, skipped, failed and still-pending items.
+```
+
+### File 9: `.claude/commands/assimilate.md`
+
+```markdown
+# /assimilate
+
+Review the current session for durable learning.
+
+Look for:
+
+- user corrections
+- stable preferences
+- repeated failure modes
+- new workflow conventions
+- project-specific context
+- stale or contradictory rules
+
+Route each finding to the narrowest source of truth:
+
+- command interaction, mode or authority lesson -> command file
+- project lesson -> project `CLAUDE.md`
+- workflow/template/reference -> `system/`
+- vault-wide behaviour/preference -> root `CLAUDE.md`
+
+First present proposed changes with destination and one-line rationale. Do not write them until the user approves. After approval, preserve the previous version of any operating manual being rewritten and record what changed.
+```
+
+### File 10: `0_daily-brief/daily-brief.md`
+
+```markdown
 ---
 date: REPLACE_WITH_TODAY
 type: daily-brief
 ---
 
-> Audit trail of changes to this brief lives in [[0_daily-brief/changelog]].
+> Audit trail: [[0_daily-brief/changelog]]
 
-## Top Priorities
+## Top priorities
 
-_No priorities set yet. Run `/process-autopilot` or add items to your daily note._
+_No priorities yet._
 
-## Tasks Needing Attention
-
-_None yet._
-
-## Questions for User
+## Tasks needing attention
 
 _None yet._
 
-## Recently Completed
+## Questions for user
 
-_Nothing completed yet._
+_None yet._
+
+## Recently completed
+
+_Nothing yet._
 ```
 
-### FILE 6: 0_daily-brief/changelog.md
+### File 11: `0_daily-brief/changelog.md`
 
-```
+```markdown
 ---
 type: daily-brief-changelog
-description: Audit trail for daily-brief.md updates. Newest entries at the top.
+last_updated: REPLACE_WITH_TODAY
 ---
 
-## System initialised
+## REPLACE_WITH_TODAY - system initialised
 
-- Vault structure created.
-- All foundational system files written.
-- Daily brief seeded.
+- Core vault structure and operating files created.
+- Onboarding not yet completed.
 ```
 
-### FILE 7: .claude/commands/assimilate.md
+### File 12: `0_daily-brief/approval-queue.md`
 
+```markdown
+---
+type: approval-queue
+last_updated: REPLACE_WITH_TODAY
+---
+
+## Pending
+
+_No pending approvals._
+
+## Resolved
+
+_None yet._
 ```
-# /assimilate
 
-Review the current session and persist anything worth remembering to durable files.
+### File 13: `1_inbox/REPLACE_WITH_TODAY.md`
 
-## What to look for
-
-1. **Corrections**: Anything the user corrected you on (wrong folder, wrong tone, wrong assumption)
-2. **New conventions**: Naming patterns, workflow changes, structural decisions
-3. **New context**: Key facts about projects or people that came up and aren't already documented
-4. **Preferences confirmed**: Communication style, formatting, tool usage patterns
-5. **Mistakes to avoid**: Things that went wrong and how to prevent them next time
-
-## How to persist
-
-1. Read `CLAUDE.md` and any relevant command files in `.claude/commands/`
-2. Check if the learning already exists - don't duplicate
-3. If it updates an existing entry, edit it in place
-4. If it's new, add it to the right file:
-   - Command-specific lessons → `.claude/commands/<name>.md`
-   - Project-specific conventions → that project's `CLAUDE.md` if it has one
-   - Vault-wide patterns → root `CLAUDE.md`
-
-## Rules
-
-- Only persist things that are **stable and confirmed** - not in-progress experiments
-- Don't persist session-specific context (current task state, temporary decisions)
-- Be concise - one line per lesson where possible
-- Tell the user what you wrote and where
+```markdown
+---
+date: REPLACE_WITH_TODAY
+type: daily-note
+---
 ```
 
 ---
 
-PHASE 3: INTERVIEW
+## Phase 3: conversational onboarding
 
-All files are now created. The vault is functional - the user can start using it immediately. But it works better with personalisation.
+Create `temp-onboarding.md` in the vault root with the fields below. This is the only temporary loose root note. Update it after every answer so the interview can survive interruption.
 
-**The rules below apply to PHASE 3 ONLY. Outside this interview, the normal Claude Code conversation style applies.**
-
-### How the interview works
-
-1. **One question at a time.** Ask, wait for the answer, then move to the next. Never dump the full list.
-2. **Capture volunteered information.** If the user answers a future question while replying to an earlier one (e.g. mentions their name, dictation tool, and goals all in one message), record it in the scratchpad. When you reach that question later, **don't re-ask** - just confirm: "Earlier you mentioned X - confirming?"
-3. **Push gently on incomplete answers.** If the response doesn't actually answer the question, ask once more, with context for why it matters. Example: user replies "consultant" to the name question → "Got the role - what name should I use in your profile and on drafts I generate for you?" Don't loop forever - if they push back twice and still don't answer, accept the default and note it for revisit.
-4. **Accept "skip", "default", or "next".** Treat these as "use the default and move on." Don't force a substantive answer.
-5. **Skip conditional questions when not applicable.** Only ask the weekly review day question if the weekly review module was chosen.
-6. **Confirm before writing.** After all questions, summarise the gathered answers and ask "Anything to change before I write the files?" - one final escape hatch.
-
-### Set up the scratchpad
-
-Before asking the first question, create `temp-onboarding.md` in the **vault root** with this content:
-
-```
+```markdown
 ---
 type: onboarding-scratchpad
 status: in-progress
-note: This file is temporary. It exists only during the interview and gets deleted once the vault is fully configured. Don't edit it manually.
+created: REPLACE_WITH_TODAY
 ---
 
-## Answers gathered
+## Answers
 
-- Name + role:
-- Top goals:
+- Name and role:
+- Current goals:
 - Communication preferences:
-- ADHD / focus preferences:
-- Spelling:
-- Date format:
-- Voice or typing:
+- Focus/attention preferences:
+- Spelling and date style:
+- Input mode and dictation tool:
 - Day boundary:
 - Optional modules:
-- Weekly review day (if applicable):
-- Scheduled autopilot preference:
-- For-review staleness threshold:
+- Local dashboard preference:
+- First dashboard views:
+- Dashboard auto-start preference:
+- Weekly review day:
+- Review staleness threshold:
+- Scheduled processing preference:
+- External systems in use:
 
-## Notes from user
-
-(volunteered info captured out of order)
+## Volunteered context
 ```
 
-Update this file as answers come in. Don't show its contents to the user unless they ask.
+Interview rules:
 
-### Open the interview
+1. Ask one question at a time.
+2. Capture information volunteered out of order; do not ask for it twice.
+3. If an answer is incomplete, explain once why the missing detail matters and ask again.
+4. Accept `skip`, `default` and `next`.
+5. Skip conditional questions that do not apply.
+6. At the end, read back the configuration and ask for corrections before writing it.
 
-Say something like:
+Open by telling the user the core vault is already usable: they can write into today's note and later run `/process-onscreen` or `/process-autopilot`.
 
-"Your vault is set up and ready to use. You can open it in Obsidian right now - start dumping thoughts into a daily note at `1_inbox/YYYY-MM-DD.md` and run `/process-autopilot` whenever you want me to process it.
+Ask:
 
-Before you dive in, I'll ask a handful of questions to personalise the system. I'll ask one at a time. Most have a sensible default - if you don't care, just say 'skip' and we'll move on. You can always come back and change things later."
+1. What is your name, and what do you do?
+2. What are the two or three outcomes that matter most to you right now?
+3. How should the agent present decision-complete work to you: concise/detailed, direct/gentle, formal/casual, humour/emojis? Explain that this changes presentation, not the completeness or safety of the underlying work.
+4. Any ADHD, focus or accessibility preferences - for example chunked answers, one next action, visible deadlines or reduced choice?
+5. Preferred spelling and date style? File names remain ISO `YYYY-MM-DD`.
+6. Do you mostly type, dictate or mix both? If dictating, which tool?
+7. When does your personal "day" roll over: midnight, 3am, 5am or another time?
+8. Which optional modules do you want now?
+   - CRM: people, companies and opportunities
+   - Content pipeline: adopted ideas/drafts/published work
+   - Weekly reviews
+   - Journal/thinking layer: dated verbatim entries plus evolving topic notes
+   - Local dashboard/portal: a private web app running on this computer, useful for visual views such as today's priorities/to-dos, CRM, finances, health/habits or other recurring workflows
 
-### The questions
-
-Ask these in order. Skip any whose answer the user has already volunteered (just confirm).
-
----
-
-**Q1: What is your name and what do you do?**
-
-> I'll create a profile at `system/profile.md` and use your name on drafts I generate. The "what you do" answer doesn't have to be a job title - whatever framing makes sense to you (e.g. "solo consultant in data and AI", "PM at a fintech", "freelance writer working on a novel").
-
----
-
-**Q2: What are your top 2-3 goals right now?**
-
-> Work, personal, or a mix - whatever's actually on your mind. I'll save these to `system/goals.md` and read them when prioritising your tasks. If you're not ready to commit, say skip and I'll leave it as a template you can fill in later.
-
----
-
-**Q3: How should I communicate with you?**
-
-> For example: direct and concise, or more detailed? Any tone preferences (formal, casual, dry humour OK, no emojis, etc.)? This shapes how I write briefs, drafts, and updates.
-
----
-
-**Q4: Do you have ADHD, or any focus or attention preferences I should know about?**
-
-> Common things people ask for: chunked responses, single next action only, no long lists, surface overdue items first. Or maybe none of those apply - that's fine too.
+   Explain the dashboard trade-off before the user chooses it: `localhost` is simple and private by default, but the app works only on this computer while it is powered on and awake. A keep-alive service can start/restart the server; it cannot serve the app while the machine is asleep. Phone, other-computer or always-on access requires a later migration to a server and a separate security design.
+9. If the local dashboard is selected: which one or two views would be most useful first? Offer examples: home/priorities and to-dos, CRM, finances, health/habits, or another recurring workflow. Do not assume the user needs every example.
+10. If the local dashboard is selected: should it start automatically when the user logs in? Capture the preference. Do not install an operating-system service during onboarding.
+11. If weekly reviews: which day?
+12. When should untouched review items count as stale: 2, 5 or 7 days?
+13. Do you want processing to remain manual, or eventually run on a schedule? Capture the preference only; do not install anything.
+14. Which external systems may eventually be useful (email, calendar, Slack, etc.)? Record context only; do not connect them or weaken the approval rule.
 
 ---
 
-**Q5: What spelling should I default to?**
+## Phase 4: apply onboarding
 
-> I'll use this for everything I draft for you (emails, posts, notes, reports).
->
-> Common options: British (`organise`, `colour`), American (`organize`, `color`), Canadian, Australian.
->
-> **Default: British.**
+After the user confirms the answers:
 
----
+1. Create `system/profile.md` with their identity, role, input style and stable working preferences.
+2. Create `system/goals.md` with current goals, or a clearly marked template if skipped.
+3. Replace the placeholders in root `CLAUDE.md` with brief personalised content.
+4. Update the staleness threshold in `system/processing-rules.md`.
+5. Save the completed scratchpad as `system/onboarding.md`.
+6. Remove `temp-onboarding.md`.
 
-**Q6: What date format do you prefer?**
+If voice or mixed input is selected, keep the proper-noun verification rule and add this convention:
 
-> File names always use ISO (`YYYY-MM-DD.md`) for sortability - this only affects how I write dates inside notes, briefs, and emails.
->
-> - `2026-05-07` (ISO, recommended - unambiguous, sorts correctly)
-> - `07/05/2026` (UK / European)
-> - `05/07/2026` (US)
-> - `7 May 2026` (long form)
->
-> **Default: ISO.**
+> Active projects with recurring first-name references maintain a `## Stakeholders` block mapping voice tokens/casual names to verified person records. The mapping is project-specific; it must not be applied to an unrelated person with the same first name.
 
----
+Create only the selected modules:
 
-**Q7: Do you mostly dictate your daily notes or type them?**
+### CRM
 
-> This matters because voice-first workflows have different gotchas - homophones get confused, surnames get mangled, fragments instead of edited prose. If you say voice, I'll:
-> - Treat your daily notes as voice transcripts (won't penalise missing punctuation or weird capitalisation)
-> - In project files, optionally maintain a "Stakeholders" block mapping casual first names to full CRM records (surnames in transcripts are unreliable)
->
-> Options: voice / typing / mixed. **Default: typing.**
->
-> (If you dictate, what tool? Wispr Flow, macOS Voice Control, etc. - just so I can mention it in your profile.)
+- Folders: `CRM/people/`, `CRM/companies/`, `CRM/opportunities/`
+- Create `system/person-template.md` and `system/opportunity-template.md`
+- Require verified identity, wiki-links, source-backed facts and Log entries
+- Define a small canonical opportunity-stage list with plain-English meanings
+- Unknown/new categories should be proposed, not silently invented
 
----
+### Content pipeline
 
-**Q8: When does your day end?**
+- Folders: `content/ideas/`, `content/drafts/`, `content/published/`
+- Agent-generated public drafts still begin in `2_for-review/`
+- The user deliberately moves adopted work into `content/`
+- Create `system/writing-styles.md` as a short, editable starter based only on preferences the user supplied
 
-> Default is midnight - works for most people. If you regularly work past midnight and "tomorrow at 1am" to you means the coming morning (not the day after), set this later. I use it to decide which `1_inbox/YYYY-MM-DD.md` file to write to and how to interpret "today" / "tomorrow" in your notes.
->
-> - **Midnight** - strict calendar day
-> - **3am** - light night-owl
-> - **5am** - heavier night-owl, common for solopreneurs and creatives
->
-> **Default: midnight.**
+### Weekly reviews
 
----
+- Folder: `3_weekly-reviews/`
+- Create a weekly-review template covering outcomes, open loops, upcoming commitments, system friction and one improvement experiment
+- Add the chosen review day to processing rules
 
-**Q9: Do you want any of these optional modules?**
+### Journal/thinking layer
 
-> Each adds folders and rules. You can enable any combination - or none.
->
-> - **CRM** - track people, companies, opportunities (`CRM/people/`, `CRM/companies/`). Good if you do sales, networking, or freelance work.
-> - **Content pipeline** - drafts, ideas, published content folders (`content/ideas/`, `content/drafts/`, `content/published/`). Good if you write or create regularly.
-> - **Weekly reviews** - auto-generated weekly review notes (`weekly-reviews/`). Good for reflecting on progress.
-> - **Journal / thinking layer** - living evergreen notes on topics you keep returning to. Not a diary - documents that get rewritten as your views evolve. Good if you have open dilemmas or recurring questions.
->
-> Tell me which (if any) you want.
+- Folders: `journal/personal/`, `journal/strategy/`
+- Preserve each raw reflection verbatim in `journal/YYYY-MM-DD.md`; append further entries from the same day under separate headings
+- Evolving topic notes live in `journal/personal/` or `journal/strategy/` and link back to the dated source
+- Use this topic-note shape: front matter with `type: evergreen`, `topic`, `tags`, `last_updated`; then `Current position`, `Open questions` and a dated `Archive` of the previous position
+- When processing reflective input, preserve the dated raw entry first, then search for a matching topic note
+- For a high-confidence match, archive the previous Current position and update it from the user's actual words
+- For no/low-confidence match, create a proposed evergreen in `2_for-review/` rather than choosing a permanent topic silently
+- The user's voice is the default body; agent analysis or framing must be visually labelled as agent commentary
+- Never present agent synthesis as if the user said it, and never quote an earlier agent summary as evidence of the user's view
+- After journal processing, create genuine commentary in `2_for-review/`: patterns, tensions, questions and analysis, not a summary
+- In interactive mode, invite a substantive conversation about the entry after the processing report; in unattended mode, flag that conversation as pending
 
----
+### Local dashboard/portal
 
-**Q10 (only if weekly reviews module chosen): What day of the week works for your weekly review?**
+Create a small locally hosted app only if the user selected it.
 
-> I'll auto-create the weekly review file every week on this day (or first autopilot run after it).
->
-> - **Sunday** - review the week just ended, plan ahead
-> - **Friday** - wrap up, fresh start Monday
-> - **Monday** - kick off the week
->
-> **Default: Sunday.**
+Explain its role in the system:
 
----
+> Markdown files and module stores remain the source of truth. The local dashboard is a presentation and interaction layer over them, not a second manually maintained system.
 
-**Q11: Quick context first - I'll be using `2_for-review/` for anything I draft for you to look at: emails, posts, research, analysis, deliverables. Items sit there until you action them (approve, edit, send, file).**
+Create:
 
-> If something has been sitting too long without you touching it, I'll auto-move it to `2_for-review/stale/` so the active folder stays clean. Stale items still surface in your daily brief - they just don't crowd the main view.
->
-> How long before something counts as "stale"?
-> - **2 days** (assumes daily triage)
-> - **5 days**
-> - **7 days** (if you batch reviews weekly)
->
-> **Default: 2 days.**
+- `scripts/portal/server.py` (or `server.mjs` when Python is unavailable and Node is already present)
+- `scripts/portal/pages/`
+- `scripts/portal/static/`
+- `scripts/portal/data/`
+- `scripts/portal/tests/`
+- `scripts/portal/service/`
+- `scripts/portal/CLAUDE.md`
+- `system/personal-webapp-guidelines.md`
 
----
+Use these baseline patterns unless the user already chose another technical stack:
 
-**Q12: Want to run `/process-autopilot` automatically every morning?**
+1. **Minimum-dependency stack**
+   - use a runtime already installed on the machine: prefer a Python standard-library HTTP server; otherwise use Node's built-in modules
+   - plain HTML, CSS and JavaScript
+   - no build step, bundler, framework, package install or virtual environment
+   - one clear server entry point
 
-> What it does: at the scheduled time, your machine reads your latest daily note, extracts tasks, updates your CRM, drafts replies, and prepares your daily brief - all without any prompts. By the time you sit down, the day is structured.
->
-> Two heads-ups before you decide:
-> 1. **Your machine has to be powered on and logged in** at the scheduled time. If it's asleep, the run is missed (it'll catch up next time).
-> 2. **Autopilot can't ask questions mid-run** - anything ambiguous gets logged in `0_daily-brief/changelog.md` and `0_daily-brief/approval-queue.md` for you to review later.
->
-> Options:
-> - **Yes, 5am daily** (most common)
-> - **Yes, custom time** (you say when)
-> - **No, I'll run it manually**
->
-> If you say yes: I'll **capture the preference** in your config, but I won't auto-install the schedule - you'll need to set up the cron / launchd / Task Scheduler entry yourself. I'll give you the exact one-line command to run when we wrap up.
->
-> **Default: no.**
+2. **Local-only by default**
+   - bind to `127.0.0.1`, never `0.0.0.0`
+   - choose an unused high port and document the `http://localhost:<port>` URL
+   - local-only is not authentication; never expose it to a network/server without adding authentication, HTTPS, secret management, backups and access logs
 
----
+3. **One shared app shell**
+   - keep menu/navigation items in one canonical list or component
+   - every page uses the shared nav placeholder/component and shared `static/app.css`/`static/app.js`
+   - generate active navigation state centrally
+   - never copy-paste a separate menu block into every page
+   - put reusable chart tooltips, privacy/demo behaviour and other cross-page interactions in shared assets
 
-### After all questions are answered
+4. **Files remain canonical**
+   - read the daily brief, tasks, CRM notes and other module data directly or through one documented read model
+   - never make the user update both a markdown note and the dashboard
+   - write actions go through a single backend function/API that validates input and records provenance
+   - avoid two writable sources for the same fact
 
-1. **Confirm**: read back the gathered answers and ask "Anything to change before I write the files?"
+5. **Use the minimum persistence that works**
+   - HTML defaults for true constants
+   - JSON for small single-user preferences or last-used state
+   - SQLite only for history, named variants, relationships or queryable event data
+   - do not introduce SQLite merely because data may grow
+   - when adding persistence to an existing page, capture the current state before loading stored state automatically
 
-2. **Update files based on answers**:
-   - `system/profile.md` (created): name + role + voice tool if applicable
-   - `system/goals.md` (created): top goals (or template if skipped)
-   - CLAUDE.md "Who You Are" and "How to Work With You" sections updated with name, communication preferences, ADHD notes, spelling, date format, voice-or-typing, day boundary
-   - If voice: add the Stakeholders-block convention to CLAUDE.md (`When creating a project hub, maintain a ## Stakeholders block mapping casual first names used in voice transcripts to full CRM records. Voice transcripts mangle surnames - the mapping disambiguates.`)
-   - `system/processing-rules.md` 2_for-review section updated with chosen staleness threshold
-   - If weekly reviews: create `weekly-reviews/` directory, add weekly review section to CLAUDE.md and processing-rules.md (specify the chosen day)
-   - If CRM: create `CRM/people/` and `CRM/companies/` directories, add CRM section to CLAUDE.md
-   - If content: create `content/ideas/`, `content/drafts/`, `content/published/` directories, add content section to CLAUDE.md
-   - If journal: create `journal/personal/` and `journal/strategy/` directories, add journal section to CLAUDE.md (see Journal CLAUDE.md block below), then ask the journal follow-up question
-   - If scheduled autopilot = yes: see Schedule handoff below
+6. **Start with one useful home**
+   - always create a Home page showing today's brief/priorities and useful empty states
+   - add only the one or two views selected during onboarding
+   - if a selected view lacks real source data, create an honest empty state/data contract rather than fabricated personal data
+   - design for keyboard use, responsive layouts and visible loading/error states
 
-3. **Save the onboarding record**: copy the contents of `temp-onboarding.md` to `system/onboarding.md` (kept as a permanent reference of how the vault was configured)
+7. **Operational reliability**
+   - add `GET /healthz` returning small JSON with status, version and uptime
+   - use append-only stdout/stderr log files in a documented logs location; never log secrets
+   - document which changes need a server restart and which need only a browser refresh
+   - include a smoke test that starts on a temporary port, checks `/healthz`, Home and each registered page, then exits cleanly
 
-4. **Delete `temp-onboarding.md`** from the vault root.
+8. **Keep-alive, without pretending it prevents sleep**
+   - if auto-start was selected, generate the appropriate service definition inside `scripts/portal/service/` for review:
+     - macOS: `launchd` with `RunAtLoad` and `KeepAlive`
+     - Linux: a user `systemd` service with `Restart=on-failure`
+     - Windows: Task Scheduler at login with restart-on-failure settings
+   - use the real absolute vault/runtime paths and dedicated log paths; never embed secrets
+   - do not install/enable the service during onboarding
+   - create `2_for-review/local-dashboard-service-setup.md` with the normal review-item front matter, explaining how the user can approve installation later
+   - state plainly that this keeps the process running only while the computer is available; sleep, shutdown and a closed laptop still make localhost unavailable
 
-5. **Final summary**: tell the user what was created, what to do first, and (if scheduled autopilot was selected) hand them the schedule command.
+9. **Future hosting is a migration**
+   - if the user later wants phone, cross-device or always-on access, treat that as a new deployment/security project
+   - review authentication, HTTPS, firewall/network exposure, secret storage, backups, multi-user assumptions and write permissions before changing the bind address or hosting it remotely
 
-### Journal CLAUDE.md block (add this section if journal module is selected)
+The portal's local `CLAUDE.md` must document its architecture, port, routes, canonical navigation source, data sources, restart pattern and how to add a page. Add the portal to the root vault map and add a Read-first routing row pointing portal work to `system/personal-webapp-guidelines.md` plus `scripts/portal/CLAUDE.md`. The global manual should only link to these detailed guidelines.
 
-```
-## Journal / Evergreen Notes
-
-Journal content lives in `journal/`. Two subfolders:
-- `journal/personal/` - relationships, lifestyle, identity, location decisions
-- `journal/strategy/` - business positioning, growth, offerings, frameworks
-
-**Format**: Each note is an evergreen note on a single topic - not a dated entry, but a living document that gets rewritten as thinking evolves.
-
-Front matter:
+If scheduled processing is desired, create a short review item in `2_for-review/` describing the preference, prerequisites and the need for a separate guided setup. Do not install a scheduler or invent a command without checking the user's OS and agent runtime.
 
 ---
-type: evergreen
-topic: [Topic name]
-tags: [personal/strategy, ...]
-last_updated: YYYY-MM-DD
----
 
-## Current position
-[Always the latest thinking - rewritten on each update, not appended]
+## Phase 5: verify and hand off
 
-## Open questions
-[Live questions; remove when resolved, add new ones as they emerge]
+Before finishing:
 
-## Archive
-### YYYY-MM-DD - [one-line summary of what changed]
-[Full snapshot of the previous Current position section]
+1. Confirm every required core file exists, including today's daily note.
+2. Confirm all links, routed workflow leaves and referenced command files resolve.
+3. Confirm the approval queue exists.
+4. Confirm no optional module was created unless selected.
+5. Confirm no secrets or external writes were introduced, no hooks/packages were installed, and no operating-system schedule/service was installed. A review-only service definition inside `scripts/portal/service/` is allowed when the dashboard was selected.
+6. Confirm root `CLAUDE.md` contains no onboarding placeholders.
+7. If the local dashboard was selected, confirm it binds only to loopback, uses one shared navigation source, reads canonical data rather than duplicating it, passes its smoke test and has not installed a keep-alive service.
+8. Create the first post-onboarding snapshot at `system/claude-md-history/REPLACE_WITH_TODAY-CLAUDE.md`.
+9. Update the changelog with the completed configuration and verification result.
 
-**During processing**: If a daily note contains reflective content - an explicit "journal:" label, more than ~150 words of first-person reasoning, or recurring-theme language ("I keep thinking about...", "I haven't decided...", "on one hand / on the other") - route it to the relevant evergreen note. Search `journal/` for an existing note on that topic first. If none exists, create a draft in `2_for-review/journal-[topic-slug].md` for the user to name and file.
+End with a short summary and exactly one next action:
 
-**Journal commentary**: After updating any journal notes in a processing run, generate commentary for each updated note (or group of related notes) and save to `2_for-review/journal-commentary-[topic-slug].md`. Group related entries into one holistic commentary rather than point-by-point notes; if entries are clearly different topics (e.g. business strategy vs personal relationships), write separate commentary files. Commentary should include: observations about what came up, patterns noticed by comparing the current position against the archive, questions worth sitting with, and your own analysis to help think the topic through further. This is not a summary - it is genuine engagement with the ideas. The user may choose to continue the thinking async from the review folder, or start a terminal session to go deeper.
-```
-
-### Journal follow-up question (ask this if journal module chosen, before the final summary)
-
-Say: "One last thing. The thinking layer works best when it has something real to start with. What's something you keep coming back to - a decision you haven't made yet, a dilemma with no clean answer, or a question that's been sitting with you? Work, personal, or anything in between."
-
-Take their answer and create their first evergreen note in the appropriate `journal/` subfolder. Tell them what you created and where.
-
-### Schedule handoff (if scheduled autopilot = yes)
-
-Tell the user:
-
-"Your scheduled autopilot preference is captured. To actually wire it up, run **one** of the following yourself - I won't auto-install it because OS-level scheduling has too many edge cases (permissions, sleep behaviour, login state) for me to handle reliably.
-
-**On macOS** (recommended - launchd):
-
-Create `~/Library/LaunchAgents/com.user.personalos-autopilot.plist` with a `<dict>` entry calling `claude` with `/process-autopilot` at your chosen time, then `launchctl load` it. Search `launchd personalos starter prompt` or ask me in a fresh session and I'll generate the file.
-
-**On Linux** (cron):
-
-Add a line like `0 5 * * * cd /path/to/vault && claude -p "/process-autopilot"` to `crontab -e`.
-
-**On Windows** (Task Scheduler):
-
-Use Task Scheduler GUI - daily trigger at your chosen time, action: run `claude -p "/process-autopilot"` in your vault directory.
-
-**Important reminder**: your machine must be powered on and logged in at the scheduled time. If it's asleep, the run is missed (autopilot will catch up next time it runs)."
-
-### Final summary
-
-After all the above, give a short summary: what was created, what their next step is (write a daily note, run `/process-autopilot`), and a reminder that they can always update preferences by editing CLAUDE.md or running `/assimilate` after a session where they corrected you.
+> Write anything on your mind into `1_inbox/REPLACE_WITH_TODAY.md`, then run `/process-onscreen`.
